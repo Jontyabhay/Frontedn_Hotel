@@ -1,6 +1,38 @@
 <header class="navbar">
   <a class="brand" href="#top">🍴 bite<span>ly</span></a>
-  <button class="cart" aria-label="Shopping cart">🛍️</button>
+  <button class="cart" (click)="toggleCart()" aria-label="Shopping cart">
+  🛍️
+  @if (cartQuantity > 0) {
+    <b>{{ cartQuantity }}</b>
+  }
+</button>
+
+  @if (isCartOpen) {
+    <aside class="cart-panel" aria-label="Your cart">
+      <div class="cart-panel-heading">
+        <h2>Your cart</h2>
+        <button (click)="toggleCart()" aria-label="Close cart">×</button>
+      </div>
+
+      @if (cartItems.length === 0) {
+        <p class="empty-cart">Your cart is empty.</p>
+      } @else {
+        @for (item of cartItems; track item.Dish) {
+          <div class="cart-item">
+            <span class="cart-item-icon">🍽️</span>
+            <div>
+              <h3>{{ item.Dish }}</h3>
+              <p>₹{{ item.Price }} · Quantity: {{ item.quantity }}</p>
+            </div>
+            <div class="quantity-controls">
+              <button (click)="changeQuantity(item, -1)" aria-label="Decrease quantity">−</button>
+              <button (click)="changeQuantity(item, 1)" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+        }
+      }
+    </aside>
+  }
 </header>
 
 <main id="top">
@@ -8,18 +40,51 @@
     <div class="hero-copy">
       <p class="eyebrow">YOUR FAVOURITES, DELIVERED</p>
       <h1>Good food.<br><em>Good mood.</em></h1>
+      <a class="menu-link" href="#menu">Explore our menu →</a>
     </div>
     <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="plate">🥗</div></div>
   </section>
 
-  <section class="section" id="categories">
-    <div class="heading"><div><p class="eyebrow">EXPLORE BY TASTE</p><h2>What are you craving?</h2></div><a href="#restaurants">View all →</a></div>
-    <div class="category-list">@for (category of categories; track category.name) {<button class="category"><span>{{ category.icon }}</span>{{ category.name }}</button>}</div>
-  </section>
+  <section class="section restaurants" id="menu">
+    <div class="heading"><div><p class="eyebrow">RESTAURANT MENU</p><h2>Freshly picked for you</h2></div><span>{{ menu().length }} dishes</span></div>
 
-  <section class="section restaurants" id="restaurants">
-    <div class="heading"><div><p class="eyebrow">POPULAR NEAR YOU</p><h2>Freshly picked for you</h2></div><a href="#restaurants">See all restaurants →</a></div>
-    <div class="grid">@for (restaurant of restaurants; track restaurant.name) {<article><div class="food" [class]="restaurant.color"><span>{{ restaurant.image }}</span><label>Free delivery</label><button aria-label="Save restaurant">♡</button></div><div class="details"><h3>{{ restaurant.name }}</h3><p>{{ restaurant.tags }}</p><div><b>★ {{ restaurant.rating }}</b><i></i><span>{{ restaurant.time }}</span></div></div></article>}</div>
+    @if (isLoading()) {
+      <p class="menu-status">Loading the menu…</p>
+    } @else if (loadError()) {
+      <p class="menu-status">{{ loadErrorMessage() }}</p>
+    } @else {
+    <div class="grid">
+      @for (item of menu(); track item.Dish) {
+        <article>
+          <div class="food menu-food">
+            <span>🍽️</span>
+            <label>{{ item.Type }}</label>
+          </div>
+
+          <div class="details">
+            <h3>{{ item.Dish }}</h3>
+            <p>{{ item.Description }}</p>
+            <div><b>₹{{ item.Price }}</b></div>
+
+            <div class="quantity-controls">
+              <button
+                (click)="changeQuantity(item, -1)"
+                [disabled]="item.quantity === 0"
+                aria-label="Decrease quantity">
+                −
+              </button>
+              <span>{{ item.quantity }}</span>
+              <button
+                (click)="changeQuantity(item, 1)"
+                aria-label="Increase quantity">
+                +
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+    }
   </section>
 
   <section class="how" id="how"><p class="eyebrow">SIMPLE AS 1, 2, 3</p><h2>Food delivery, made easy.</h2><div><p><b>1</b> Choose a restaurant</p><p><b>2</b> Pick your favourites</p><p><b>3</b> Track it to your door</p></div></section>
