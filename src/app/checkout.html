@@ -1,0 +1,40 @@
+<main class="checkout-page">
+  <a class="brand" routerLink="/">🍴 bite<span>ly</span></a>
+
+  @if (order(); as currentOrder) {
+    <section class="checkout-card">
+      @if (isPaymentComplete()) {
+        <p class="eyebrow">PAYMENT COMPLETE</p>
+        <h1>Thank you for your order!</h1>
+        <p class="checkout-copy">We have received your order for ₹{{ currentOrder.total }}.</p>
+        <a class="return-link" routerLink="/" (click)="returnToMenu()">Return to menu</a>
+      } @else {
+        <p class="eyebrow">CHECKOUT</p>
+        <h1>Review your order</h1>
+        <div class="order-lines">
+          @for (item of currentOrder.items; track item.Dish) {
+            <div>
+              <span>{{ item.Dish }} × {{ item.quantity }}</span>
+              <strong>₹{{ item.Price * item.quantity }}</strong>
+            </div>
+          }
+        </div>
+        <div class="checkout-total"><span>Total</span><strong>₹{{ currentOrder.total }}</strong></div>
+        @if (submitError()) {
+          <p class="checkout-error" role="alert">{{ submitError() }}</p>
+        }
+        <button class="pay-button" [disabled]="isSubmitting()" (click)="completePayment()">
+          {{ isSubmitting() ? 'Placing order...' : 'Pay ₹' + currentOrder.total }}
+        </button>
+        <a class="return-link" routerLink="/">Continue adding dishes</a>
+      }
+    </section>
+  } @else {
+    <section class="checkout-card">
+      <p class="eyebrow">CHECKOUT</p>
+      <h1>Your order is empty</h1>
+      <p class="checkout-copy">Add dishes from the menu before checking out.</p>
+      <a class="return-link" routerLink="/">Go to menu</a>
+    </section>
+  }
+</main>

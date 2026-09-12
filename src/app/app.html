@@ -30,6 +30,16 @@
             </div>
           </div>
         }
+        <div class="cart-summary">
+          <span>Total</span>
+          <strong>₹{{ cartTotal }}</strong>
+        </div>
+        <button class="place-order" (click)="placeOrder()">
+          Place order · ₹{{ cartTotal }}
+        </button>
+        <button class="empty-cart-button" (click)="emptyCart()">
+          Empty cart
+        </button>
       }
     </aside>
   }
