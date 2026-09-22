@@ -10,6 +10,8 @@ export interface OrderedItem {
 }
 
 export interface PendingOrder {
+  table: string;
+  token: string;
   items: OrderedItem[];
   total: number;
 }

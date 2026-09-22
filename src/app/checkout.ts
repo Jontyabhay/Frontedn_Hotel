@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { API_TOKEN } from './menu-api.config';
 import { OrderService } from './order.service';
 
 @Component({
@@ -21,7 +20,14 @@ export class CheckoutComponent {
 
     this.isSubmitting.set(true);
     this.submitError.set('');
-    this.orderService.submitOrder(API_TOKEN).subscribe({
+    const order = this.order();
+    if (!order) {
+      this.submitError.set('Your order is no longer available. Please scan the table QR code again.');
+      this.isSubmitting.set(false);
+      return;
+    }
+
+    this.orderService.submitOrder(order.token).subscribe({
       next: () => {
         this.isPaymentComplete.set(true);
         this.isSubmitting.set(false);

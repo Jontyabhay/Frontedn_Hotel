@@ -26,7 +26,7 @@
         <button class="pay-button" [disabled]="isSubmitting()" (click)="completePayment()">
           {{ isSubmitting() ? 'Placing order...' : 'Pay ₹' + currentOrder.total }}
         </button>
-        <a class="return-link" routerLink="/">Continue adding dishes</a>
+        <a class="return-link" routerLink="/" [fragment]="'menu?token=' + currentOrder.token">Continue adding dishes</a>
       }
     </section>
   } @else {

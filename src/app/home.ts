@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MENU_API_URL } from './menu-api.config';
 import { OrderService } from './order.service';
@@ -12,12 +12,13 @@ interface MenuApiItem {
 }
 
 interface MenuItem extends MenuApiItem {
+  table: string;
   quantity: number;
 }
 
 type MenuResponse =
   | MenuApiItem[]
-  | { menu?: MenuApiItem[]; items?: MenuApiItem[]; Items?: MenuApiItem[] };
+  | { menu?: MenuApiItem[]; items?: MenuApiItem[]; Items?: MenuApiItem[]; table?: string; token?: string };
 
 @Component({
   selector: 'app-home',
@@ -34,18 +35,44 @@ export class HomeComponent implements OnInit {
   protected readonly isLoading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly loadErrorMessage = signal('');
+  protected readonly scannedToken = signal('');
+  protected readonly scannedTable = signal('');
 
   ngOnInit() {
-    this.http.get<MenuResponse>(MENU_API_URL).subscribe({
+    this.loadMenuFromLocation();
+  }
+
+  @HostListener('window:hashchange')
+  protected onHashChange() {
+    this.loadMenuFromLocation();
+  }
+
+  private loadMenuFromLocation() {
+    const token = this.getTokenFromLocation();
+    this.isLoading.set(true);
+    this.loadError.set(false);
+    this.menu.set([]);
+    if (!token) {
+      this.loadError.set(true);
+      this.loadErrorMessage.set('Open this page with #menu?token=YOUR_TABLE_TOKEN.');
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.scannedToken.set(token);
+    this.http.get<MenuResponse>(MENU_API_URL(token)).subscribe({
       next: (response) => {
         const items = Array.isArray(response)
           ? response
           : response.menu ?? response.items ?? response.Items ?? [];
+        const table = !Array.isArray(response) ? response.table ?? 'selected table' : 'selected table';
+        this.scannedTable.set(table);
         const previousItems = new Map(
           this.orderService.pendingOrder()?.items.map((item) => [item.Dish, item.quantity]),
         );
         this.menu.set(items.map((item) => ({
           ...item,
+          table,
           quantity: previousItems.get(item.Dish) ?? 0,
         })));
         this.isLoading.set(false);
@@ -58,6 +85,11 @@ export class HomeComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private getTokenFromLocation(): string | null {
+    const match = window.location.href.match(/[?&]token=([^&#]*)/);
+    return match ? decodeURIComponent(match[1]).trim() || null : null;
   }
 
   protected changeQuantity(item: MenuItem, change: number) {
@@ -100,6 +132,8 @@ export class HomeComponent implements OnInit {
     if (this.cartItems.length === 0) return;
 
     this.orderService.setOrder({
+      table: this.scannedTable(),
+      token: this.scannedToken(),
       items: this.cartItems.map(({ Dish, Price, quantity }) => ({
         Dish,
         Price,
@@ -107,6 +141,14 @@ export class HomeComponent implements OnInit {
       })),
       total: this.cartTotal,
     });
-    this.router.navigate(['/checkout']);
+    this.router.navigate(['/order']);
   }
+
+  protected scrollToMenu(event: Event) {
+  event.preventDefault();
+  document.getElementById('menu')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
+}
 }
