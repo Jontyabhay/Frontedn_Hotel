@@ -24,7 +24,7 @@
           <p class="checkout-error" role="alert">{{ submitError() }}</p>
         }
         <button class="pay-button" [disabled]="isSubmitting()" (click)="completePayment()">
-          {{ isSubmitting() ? 'Placing order...' : 'Pay ₹' + currentOrder.total }}
+          {{ isSubmitting() ? 'Placing order...' : 'Confirm Order'}}
         </button>
         <a class="return-link" routerLink="/" [fragment]="'menu?token=' + currentOrder.token">Continue adding dishes</a>
       }

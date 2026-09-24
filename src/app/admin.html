@@ -1,0 +1,38 @@
+<main class="admin-page">
+ <div class="brand" aria-label="bitely">
+  🍴 bite<span>ly</span>
+</div>
+
+  @if (isLoggedIn()) {
+    <h1>Welcome to the admin dashboard</h1>
+  } @else {
+    <h1>Admin login</h1>
+
+    <form (ngSubmit)="login()" #form="ngForm">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        name="username"
+        [(ngModel)]="username"
+        required
+      />
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        [(ngModel)]="password"
+        required
+      />
+
+      @if (error) {
+        <p role="alert">{{ error }}</p>
+      }
+
+      <button type="submit" [disabled]="form.invalid">
+        Sign in
+      </button>
+    </form>
+  }
+</main>

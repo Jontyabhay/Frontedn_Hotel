@@ -29,6 +29,7 @@ export class CheckoutComponent {
 
     this.orderService.submitOrder(order.token).subscribe({
       next: () => {
+
         this.isPaymentComplete.set(true);
         this.isSubmitting.set(false);
       },
@@ -38,7 +39,7 @@ export class CheckoutComponent {
       },
     });
   }
-
+  
   protected returnToMenu() {
     this.orderService.clearOrder();
   }

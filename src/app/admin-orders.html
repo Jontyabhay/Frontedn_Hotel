@@ -1,0 +1,54 @@
+<main class="admin-orders-page">
+  <div class="brand" aria-label="bitely">
+    🍴 bite<span>ly</span>
+  </div>
+
+  <h1>Confirmed orders</h1>
+
+  @if (isloading()) {
+    <p>Loading orders...</p>
+  } @else if (error()) {
+    <p>{{ error() }}</p>
+  } @else {
+    <label for="table-filter">Select table:</label>
+
+    <select
+      id="table-filter"
+      [value]="selectedTable()"
+      (change)="selectTable($event)">
+      <option value="all">All tables</option>
+
+      @for (table of tableNumbers(); track table) {
+        <option [value]="table">{{ table }}</option>
+      }
+    </select>
+
+    @if (filteredOrders().length === 0) {
+      <p>No confirmed orders for this table.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Dish Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (order of filteredOrders(); track order.id ?? $index) {
+            @for (item of order.items; track item.Dish) {
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ item.Dish }}</td>
+                <td>₹{{ item.Price }}</td>
+                <td>{{ item.quantity }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+  }
+</main>
