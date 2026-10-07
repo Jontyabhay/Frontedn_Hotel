@@ -10,6 +10,13 @@
   } @else if (error()) {
     <p>{{ error() }}</p>
   } @else {
+    @if (approvalError()) {
+      <p role="alert">{{ approvalError() }}</p>
+    }
+    @if (approvalMessage()) {
+      <p role="status">{{ approvalMessage() }}</p>
+    }
+
     <label for="table-filter">Select table:</label>
 
     <select
@@ -30,9 +37,14 @@
         <thead>
           <tr>
             <th>Order ID</th>
+            <th>Table Number</th>
             <th>Dish Name</th>
             <th>Price</th>
             <th>Quantity</th>
+            @if (hasUnapprovedOrders()) {
+              <th>Action</th>
+            }
+            <th>Edit</th>
           </tr>
         </thead>
 
@@ -40,15 +52,88 @@
           @for (order of filteredOrders(); track order.id ?? $index) {
             @for (item of order.items; track item.Dish) {
               <tr>
-                <td>{{ order.id }}</td>
+                @if ($first) {
+                  <td [attr.rowspan]="order.items.length">{{ order.id }}</td>
+                  <td [attr.rowspan]="order.items.length">{{ order.table }}</td>
+                }
                 <td>{{ item.Dish }}</td>
                 <td>₹{{ item.Price }}</td>
                 <td>{{ item.quantity }}</td>
+                @if ($first && hasUnapprovedOrders()) {
+                  <td [attr.rowspan]="order.items.length">
+                    @if (order.id && !approvedOrderIds().has(order.id)) {
+                      <button
+                        type="button"
+                        [disabled]="approvingOrderId() !== null || !order.id"
+                        (click)="approveOrder(order)">
+                        {{ approvingOrderId() === order.id ? 'Approving...' : 'Approve' }}
+                      </button>
+                    }
+                  </td>
+                }
+                @if ($first) {
+                  <td [attr.rowspan]="order.items.length">
+                    <button
+                      type="button"
+                      [disabled]="!order.id"
+                      (click)="openEdit(order)">
+                      Edit
+                    </button>
+                  </td>
+                }
               </tr>
             }
           }
         </tbody>
       </table>
+    }
+
+    @if (editingOrder(); as order) {
+      <div class="edit-backdrop">
+        <section
+          class="edit-popup"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-order-title">
+          <h2 id="edit-order-title">Edit order {{ order.id }}</h2>
+          @if (editError()) {
+            <p role="alert">{{ editError() }}</p>
+          }
+
+          @if (order.items.length === 0) {
+            <p>This order has no items.</p>
+          } @else {
+            @for (item of order.items; track item.Dish) {
+              <div class="edit-item">
+                <label>
+                  <span>Quantity for {{ item.Dish }}</span>
+                  <input
+                    #quantity
+                    type="number"
+                    min="1"
+                    step="1"
+                    [value]="item.quantity"
+                    [disabled]="savingItem()">
+                </label>
+                <button
+                  type="button"
+                  [disabled]="savingItem()"
+                  (click)="saveItem(order, item, quantity.value)">
+                  Save
+                </button>
+                <button
+                  type="button"
+                  [disabled]="savingItem()"
+                  (click)="removeItem(order, item)">
+                  Remove
+                </button>
+              </div>
+            }
+          }
+
+          <button type="button" (click)="closeEdit()">Close</button>
+        </section>
+      </div>
     }
   }
 </main>

@@ -7,7 +7,14 @@
         <p class="eyebrow">PAYMENT COMPLETE</p>
         <h1>Thank you for your order!</h1>
         <p class="checkout-copy">We have received your order for ₹{{ currentOrder.total }}.</p>
-        <a class="return-link" routerLink="/" (click)="returnToMenu()">Return to menu</a>
+        <a
+          class="return-link"
+          routerLink="/"
+          [queryParams]="{ token: currentOrder.token }"
+          fragment="menu"
+          (click)="returnToMenu()">
+          Return to menu
+        </a>
       } @else {
         <p class="eyebrow">CHECKOUT</p>
         <h1>Review your order</h1>
@@ -26,7 +33,9 @@
         <button class="pay-button" [disabled]="isSubmitting()" (click)="completePayment()">
           {{ isSubmitting() ? 'Placing order...' : 'Confirm Order'}}
         </button>
-        <a class="return-link" routerLink="/" [fragment]="'menu?token=' + currentOrder.token">Continue adding dishes</a>
+        <a class="return-link" routerLink="/" [fragment]="'menu?token=' + currentOrder.token">
+          Continue adding dishes
+        </a>
       }
     </section>
   } @else {

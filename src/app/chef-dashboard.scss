@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8eee1;
+  color: #173c2c;
+}
+
+.chef-page {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 1200px;
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+
+.chef-header {
+  align-items: center;
+  border-bottom: 1px solid #d9ded5;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+}
+
+.chef-header h1 {
+  font-size: 32px;
+  margin: 0;
+}
+
+.chef-header a,
+.chef-page > a {
+  color: #176342;
+  font-weight: 700;
+}
+
+.eyebrow {
+  color: #e86a4d;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.eyebrow span {
+  color: #173c2c;
+}
+
+.orders-table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 680px;
+  text-align: left;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid #d9ded5;
+  padding: 14px 12px;
+  vertical-align: top;
+}
+
+th {
+  color: #52685c;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+button {
+  background: #ee654a;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.status {
+  margin: 20px 0;
+}
+
+.error {
+  color: #b33d2d;
+}
+
+.success {
+  color: #176342;
+}
+
+@media (max-width: 600px) {
+  .chef-page {
+    padding: 28px 16px;
+  }
+
+  .chef-header h1 {
+    font-size: 26px;
+  }
+}

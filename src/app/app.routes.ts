@@ -8,6 +8,8 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'order', component: CheckoutComponent },
   { path: 'admin', component: AdminComponent },
+  { path: 'admin/orders/:order_id', component: AdminOrdersComponent },
+  { path: 'admin/orders/:order_id', component: AdminOrdersComponent },
   { path: 'admin/orders', component: AdminOrdersComponent },
   { path: '**', redirectTo: '' }
 ];

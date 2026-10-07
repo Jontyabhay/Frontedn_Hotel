@@ -89,4 +89,27 @@ export class OrderService {
         ),
       );
     }
+
+  approveOrder(orderId: string, token: string): Observable<unknown> {
+    const params = new HttpParams()
+      .set('order_id', orderId)
+      .set('token', token);
+
+    return this.http.post<unknown>('/api/admin/approve', {}, { params });
+  }
+
+  updateOrder(
+    orderId: string,
+    dish: string,
+    qty: number | null,
+    token: string,
+  ): Observable<unknown> {
+    const params = new HttpParams().set('token', token);
+
+    return this.http.patch<unknown>(
+      `/api/admin/orders/${encodeURIComponent(orderId)}`,
+      { dish, qty },
+      { params },
+    );
+  }
 }

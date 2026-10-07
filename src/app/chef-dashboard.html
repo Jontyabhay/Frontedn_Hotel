@@ -1,0 +1,51 @@
+<main class="chef-page">
+  <header class="chef-header">
+    <div>
+      <p class="eyebrow">BITE<span>LY</span> · KITCHEN</p>
+      <h1>Chef dashboard</h1>
+    </div>
+    <a routerLink="/admin/orders">Orders</a>
+  </header>
+
+  @if (isLoading()) {
+    <p class="status">Loading orders...</p>
+  } @else if (error() === 'Please log in again.') {
+    <p class="status error" role="alert">{{ error() }}</p>
+    <a routerLink="/admin">Go to admin login</a>
+  } @else {
+    @if (error()) {
+      <p class="status error" role="alert">{{ error() }}</p>
+    }
+
+    @if (orders().length === 0) {
+      <p class="status">There are no confirmed orders.</p>
+    } @else {
+      <div class="orders-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Table</th>
+              <th>Items</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.id ?? $index) {
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.table }}</td>
+                <td>
+                  @for (item of order.items; track item.Dish) {
+                    <div>{{ item.Dish }} × {{ item.quantity }}</div>
+                  }
+                </td>
+                <td>₹{{ order.total }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</main>
