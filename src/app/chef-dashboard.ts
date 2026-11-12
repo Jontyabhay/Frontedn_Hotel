@@ -1,37 +1,46 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { OrderService, PendingOrder } from './order.service';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chef-dashboard',
-  imports: [RouterLink],
+  imports: [FormsModule],
   templateUrl: './chef-dashboard.html',
   styleUrl: './chef-dashboard.scss',
 })
-export class ChefDashboardComponent implements OnInit {
-  private readonly orderService = inject(OrderService);
+export class ChefComponent {
+  username = '';
+  password = '';
+  error = '';
 
-  protected readonly orders = signal<PendingOrder[]>([]);
-  protected readonly isLoading = signal(true);
-  protected readonly error = signal('');
+  protected readonly isLoggingIn = signal(false);
 
-  ngOnInit() {
-    const token = sessionStorage.getItem('adminToken');
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
-    if (!token) {
-      this.error.set('Please log in again.');
-      this.isLoading.set(false);
-      return;
-    }
+  login() {
+    this.error = '';
+    this.isLoggingIn.set(true);
 
-    this.orderService.getConfirmedOrders(token).subscribe({
-      next: (orders) => {
-        this.orders.set(orders);
-        this.isLoading.set(false);
+    this.http
+      .post<{ token: string }>('/api/chef', {
+        username: this.username,
+        password: this.password,
+      })
+      .subscribe({
+      next: (response) => {
+        sessionStorage.setItem('chefToken', response.token);
+        this.password = '';
+        this.isLoggingIn.set(false);
+        void this.router.navigateByUrl('/chef/orders');
       },
-      error: () => {
-        this.error.set('Could not load orders.');
-        this.isLoading.set(false);
+      error: (error: HttpErrorResponse) => {
+        this.error =
+          error.status === 401
+            ? 'Invalid username or password.'
+            : 'Unable to sign in. Please try again.';
+        this.isLoggingIn.set(false);
       },
     });
   }

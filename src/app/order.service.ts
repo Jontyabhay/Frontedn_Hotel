@@ -70,25 +70,33 @@ export class OrderService {
 
     return this.http
       .get<ApiConfirmedOrder[]>('/api/admin/orders', { params })
-      .pipe(
-        map((orders) =>
-          orders.map((order) => ({
-            id: order._id,
-            table: order.table,
-            token: '',
-            items: order.orders.map((item) => ({
-              Dish: item.dish,
-              Price: item.Price,
-              quantity: item.qty,
-            })),
-            total: order.orders.reduce(
-              (total, item) => total + item.Price * item.qty,
-              0,
-            ),
-         })),
-        ),
-      );
-    }
+      .pipe(map((orders) => this.mapOrders(orders)));
+  }
+
+  getChefApprovedOrders(token: string): Observable<PendingOrder[]> {
+    const params = new HttpParams().set('token', token);
+
+    return this.http
+      .get<ApiConfirmedOrder[]>('/api/chef/orders', { params })
+      .pipe(map((orders) => this.mapOrders(orders)));
+  }
+
+  private mapOrders(orders: ApiConfirmedOrder[]): PendingOrder[] {
+    return orders.map((order) => ({
+      id: order._id,
+      table: order.table,
+      token: '',
+      items: order.orders.map((item) => ({
+        Dish: item.dish,
+        Price: item.Price,
+        quantity: item.qty,
+      })),
+      total: order.orders.reduce(
+        (total, item) => total + item.Price * item.qty,
+        0,
+      ),
+    }));
+  }
 
   approveOrder(orderId: string, token: string): Observable<unknown> {
     const params = new HttpParams()

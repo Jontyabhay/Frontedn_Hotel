@@ -1,51 +1,34 @@
 <main class="chef-page">
-  <header class="chef-header">
-    <div>
-      <p class="eyebrow">BITE<span>LY</span> · KITCHEN</p>
-      <h1>Chef dashboard</h1>
-    </div>
-    <a routerLink="/admin/orders">Orders</a>
-  </header>
+ <div class="brand" aria-label="bitely">
+  🍴 bite<span>ly</span>
+</div>
 
-  @if (isLoading()) {
-    <p class="status">Loading orders...</p>
-  } @else if (error() === 'Please log in again.') {
-    <p class="status error" role="alert">{{ error() }}</p>
-    <a routerLink="/admin">Go to admin login</a>
-  } @else {
-    @if (error()) {
-      <p class="status error" role="alert">{{ error() }}</p>
+  <h1>Chef login</h1>
+
+  <form (ngSubmit)="login()" #form="ngForm">
+    <label for="username">Username</label>
+    <input
+      id="username"
+      name="username"
+      [(ngModel)]="username"
+      required
+    />
+
+    <label for="password">Password</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      [(ngModel)]="password"
+      required
+    />
+
+    @if (error) {
+      <p role="alert">{{ error }}</p>
     }
 
-    @if (orders().length === 0) {
-      <p class="status">There are no confirmed orders.</p>
-    } @else {
-      <div class="orders-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Table</th>
-              <th>Items</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (order of orders(); track order.id ?? $index) {
-              <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.table }}</td>
-                <td>
-                  @for (item of order.items; track item.Dish) {
-                    <div>{{ item.Dish }} × {{ item.quantity }}</div>
-                  }
-                </td>
-                <td>₹{{ order.total }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  }
+    <button type="submit" [disabled]="form.invalid || isLoggingIn()">
+      {{ isLoggingIn() ? 'Signing in...' : 'Sign in' }}
+    </button>
+  </form>
 </main>
