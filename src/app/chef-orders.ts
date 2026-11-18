@@ -34,6 +34,8 @@ export class ChefOrdersComponent implements OnInit {
   });
   protected readonly isLoading = signal(true);
   protected readonly error = signal('');
+  protected readonly dispatchError = signal('');
+  protected readonly dispatchingOrderIds = signal<Set<string>>(new Set());
 
   ngOnInit() {
     const token = sessionStorage.getItem('chefToken');
@@ -58,6 +60,54 @@ export class ChefOrdersComponent implements OnInit {
         }
 
         this.error.set('Could not load approved orders. Please try again.');
+      },
+    });
+  }
+
+  protected dispatchOrder(order: PendingOrder) {
+    const orderId = order.id;
+    const token = sessionStorage.getItem('chefToken');
+
+    if (!orderId) {
+      this.dispatchError.set('Cannot dispatch an order without an order ID.');
+      return;
+    }
+
+    if (!token) {
+      void this.router.navigateByUrl('/chef');
+      return;
+    }
+
+    this.dispatchError.set('');
+    this.dispatchingOrderIds.update((ids) => new Set(ids).add(orderId));
+
+    this.orderService.dispatchOrder(orderId, token).subscribe({
+      next: () => {
+        this.orders.update((orders) =>
+          orders.filter((item) => item.id !== orderId),
+        );
+        this.dispatchingOrderIds.update((ids) => {
+          const updated = new Set(ids);
+          updated.delete(orderId);
+          return updated;
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.dispatchingOrderIds.update((ids) => {
+          const updated = new Set(ids);
+          updated.delete(orderId);
+          return updated;
+        });
+
+        if (error.status === 401 || error.status === 403) {
+          sessionStorage.removeItem('chefToken');
+          void this.router.navigateByUrl('/chef');
+          return;
+        }
+
+        this.dispatchError.set(
+          `Could not dispatch order ${orderId}. Please try again.`,
+        );
       },
     });
   }

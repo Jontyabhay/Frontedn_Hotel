@@ -138,6 +138,10 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
+  protected openBill() {
+    void this.router.navigateByUrl('/admin/bill');
+  }
+
   protected readonly isloading = signal(true);
   protected readonly error = signal('');
 

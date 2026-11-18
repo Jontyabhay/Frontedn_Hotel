@@ -17,6 +17,20 @@ export interface PendingOrder {
   total: number;
 }
 
+export interface BillItem {
+  dish: string;
+  qty: number;
+  Price: number;
+  total: number;
+}
+
+export interface GeneratedBill {
+  message: string;
+  table: string;
+  orders: BillItem[];
+  total_bill: number;
+}
+
 interface OrderRequestItem {
   dish: string;
   qty: number;
@@ -81,6 +95,16 @@ export class OrderService {
       .pipe(map((orders) => this.mapOrders(orders)));
   }
 
+  generateBill(tableName: string, token: string): Observable<GeneratedBill> {
+    const params = new HttpParams().set('token', token);
+
+    return this.http.post<GeneratedBill>(
+      '/api/admin/bill',
+      { table_name: tableName },
+      { params },
+    );
+  }
+
   private mapOrders(orders: ApiConfirmedOrder[]): PendingOrder[] {
     return orders.map((order) => ({
       id: order._id,
@@ -104,6 +128,14 @@ export class OrderService {
       .set('token', token);
 
     return this.http.post<unknown>('/api/admin/approve', {}, { params });
+  }
+
+  dispatchOrder(orderId: string, token: string): Observable<unknown> {
+    const params = new HttpParams()
+      .set('order_id', orderId)
+      .set('token', token);
+
+    return this.http.post<unknown>('/api/chef/dispatch', {}, { params });
   }
 
   updateOrder(

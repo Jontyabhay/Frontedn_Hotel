@@ -17,6 +17,12 @@
       <p role="status">{{ approvalMessage() }}</p>
     }
 
+    <section aria-labelledby="bill-heading">
+      <h2 id="bill-heading">Generate a bill</h2>
+      <p>Enter the table name after its orders have been dispatched.</p>
+      <button type="button" (click)="openBill()">Generate bill</button>
+    </section>
+
     <label for="table-filter">Select table:</label>
 
     <select

@@ -1,0 +1,54 @@
+<main class="admin-page">
+  <div class="brand" aria-label="bitely">
+    🍴 bite<span>ly</span>
+  </div>
+
+  <h1>Table bill</h1>
+
+  <label for="table-name">Table name</label>
+  <input
+    #tableNameInput
+    id="table-name"
+    type="text"
+    [value]="tableName()"
+    (input)="tableName.set(tableNameInput.value)">
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="generateBill(tableNameInput.value)">
+    Generate bill
+  </button>
+
+  @if (isLoading()) {
+    <p>Generating bill...</p>
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (bill(); as generatedBill) {
+    <h2>Table {{ generatedBill.table }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of generatedBill.orders; track $index) {
+          <tr>
+            <td>{{ item.dish }}</td>
+            <td>{{ item.qty }}</td>
+            <td>₹{{ item.Price }}</td>
+            <td>₹{{ item.total }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <h2>Total bill: ₹{{ generatedBill.total_bill }}</h2>
+  }
+
+  <button type="button" (click)="backToOrders()">Back to admin orders</button>
+</main>

@@ -7,6 +7,10 @@
 
   <h1>Approved orders</h1>
 
+  @if (dispatchError()) {
+    <p role="alert">{{ dispatchError() }}</p>
+  }
+
   @if (isLoading()) {
     <p>Loading approved orders...</p>
   } @else if (error()) {
@@ -23,6 +27,7 @@
               <tr>
                 <th>Order ID</th>
                 <th>Items</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -33,6 +38,14 @@
                     @for (item of order.items; track item.Dish) {
                       <div>{{ item.Dish }} × {{ item.quantity }}</div>
                     }
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      [disabled]="!order.id || dispatchingOrderIds().has(order.id)"
+                      (click)="dispatchOrder(order)">
+                      {{ order.id && dispatchingOrderIds().has(order.id) ? 'Dispatching...' : 'Dispatch' }}
+                    </button>
                   </td>
                 </tr>
               }
